@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-18T00:00:00Z",
+  "title": "Design System: Tour des Yoles",
+  "extensions": {
+    "colorMeta": {
+      "bg":            { "role": "neutral",   "displayName": "Sand Warm",      "canonical": "#f8f5f0", "tonalRamp": ["#3d2a18","#5a3d25","#7a5535","#9e7250","#c49876","#ddbf9f","#ede0cf","#f8f5f0"] },
+      "surface":       { "role": "neutral",   "displayName": "Surface White",  "canonical": "#ffffff", "tonalRamp": ["#3d2a18","#5a3d25","#7a5535","#9e7250","#c49876","#ddbf9f","#f0ece4","#ffffff"] },
+      "surface-2":     { "role": "neutral",   "displayName": "Surface Soft",   "canonical": "#f0ece4", "tonalRamp": ["#3a2818","#564030","#7a5c45","#9e7e63","#c4a588","#d9c4ae","#e8ddd1","#f0ece4"] },
+      "coral-fire":    { "role": "primary",   "displayName": "Coral Fire",     "canonical": "#e04010", "tonalRamp": ["#4a1505","#7a220a","#b03010","#e04010","#f5622c","#ff8c61","#ffb89a","#ffe4d8"] },
+      "coral-light":   { "role": "primary",   "displayName": "Coral Light",    "canonical": "#f5622c", "tonalRamp": ["#4a1505","#7a220a","#b03010","#e04010","#f5622c","#ff8c61","#ffb89a","#ffe4d8"] },
+      "emerald-sea":   { "role": "secondary", "displayName": "Emerald Sea",    "canonical": "#00896f", "tonalRamp": ["#002920","#004838","#006650","#00896f","#00b591","#00d4ab","#7aedd8","#ccfaf3"] },
+      "emerald-light": { "role": "secondary", "displayName": "Emerald Light",  "canonical": "#00b591", "tonalRamp": ["#002920","#004838","#006650","#00896f","#00b591","#00d4ab","#7aedd8","#ccfaf3"] },
+      "golden-hour":   { "role": "tertiary",  "displayName": "Golden Hour",    "canonical": "#c87a00", "tonalRamp": ["#3d2400","#6b4000","#9e5f00","#c87a00","#f59e00","#ffc340","#ffd980","#fff3cc"] },
+      "ink-deep":      { "role": "neutral",   "displayName": "Ink Deep",       "canonical": "#1a1008", "tonalRamp": ["#1a1008","#2e1e10","#4a3020","#6e4e34","#9e7250","#c49876","#ddbf9f","#f8f5f0"] },
+      "danger":        { "role": "neutral",   "displayName": "Danger Red",     "canonical": "#c83040", "tonalRamp": ["#3d0a10","#6b1520","#9e2030","#c83040","#e05060","#f07880","#f8b0b8","#ffe0e4"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Name picker heading only. The boarding moment — one screen, maximum presence." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles. One per view." },
+      "title":    { "displayName": "Title",    "purpose": "Panel headings, day headings in Récap." },
+      "body":     { "displayName": "Body",     "purpose": "Item names, course names, button text. Semi-bold (600) is default." },
+      "label":    { "displayName": "Label",    "purpose": "Chips, nav links, presence names, secondary metadata." },
+      "caption":  { "displayName": "Caption",  "purpose": "Section titles. All-caps with 0.10em tracking. Never below 11px." }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 4px rgba(90,55,20,.07)", "purpose": "Default resting state for cards, inputs, chips." },
+      { "name": "shadow-md", "value": "0 2px 8px rgba(90,55,20,.08), 0 8px 24px rgba(90,55,20,.05)", "purpose": "Hover state and panel-level containers." },
+      { "name": "glow-coral", "value": "0 2px 8px rgba(224,64,16,.28)", "purpose": "Primary button resting glow. Lifts to 0 4px 14px rgba(224,64,16,.38) on hover." },
+      { "name": "glow-emerald", "value": "0 2px 10px rgba(0,137,111,.12)", "purpose": "Presence-on button confirmation glow." },
+      { "name": "focus-coral", "value": "0 0 0 3px rgba(224,64,16,.12)", "purpose": "Focus ring on primary-context inputs (name, item name)." },
+      { "name": "focus-teal", "value": "0 0 0 3px rgba(0,137,111,.10)", "purpose": "Focus ring on secondary-context inputs (day fields, course fields)." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(.4,0,.2,1)", "purpose": "All state transitions: hover, active, progress bar width." },
+      { "name": "duration-fast",  "value": "150ms", "purpose": "Button press, chip toggle." },
+      { "name": "duration-base",  "value": "200ms", "purpose": "Color, border, shadow transitions." },
+      { "name": "duration-enter", "value": "300–350ms", "purpose": "fadeUp entrance animation on list items." }
+    ],
+    "breakpoints": [
+      { "name": "max-width", "value": "640px", "purpose": "Single-column content max-width. No breakpoints — mobile-first single column throughout." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action. Coral gradient, white text, warm glow. Scales down 3% on press.",
+      "html": "<button class=\"ds-btn-primary\">S'inscrire</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e04010 0%, #f5622c 100%); color: #fff; border: none; border-radius: 12px; padding: 11px 18px; font-family: 'Figtree', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(224,64,16,.28); transition: box-shadow 150ms cubic-bezier(.4,0,.2,1), transform 150ms cubic-bezier(.4,0,.2,1), opacity 150ms; } .ds-btn-primary:hover { box-shadow: 0 4px 14px rgba(224,64,16,.38); } .ds-btn-primary:active { transform: scale(.97); box-shadow: none; opacity: .88; } .ds-btn-primary:disabled { opacity: .35; box-shadow: none; cursor: not-allowed; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(224,64,16,.35); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action. White surface, warm border, lifts on hover.",
+      "html": "<button class=\"ds-btn-ghost\">Annuler</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; background: #ffffff; color: rgba(26,16,8,.60); border: 1px solid rgba(90,55,20,.11); border-radius: 12px; padding: 11px 18px; font-family: 'Figtree', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 4px rgba(90,55,20,.07); transition: background 150ms, color 150ms, border-color 150ms; } .ds-btn-ghost:hover { background: #f0ece4; color: #1a1008; border-color: rgba(90,55,20,.22); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(224,64,16,.20); }"
+    },
+    {
+      "name": "Presence Button (off)",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Full-width presence toggle at rest — not present. Looks like a ghost button.",
+      "html": "<button class=\"ds-btn-presence\">Je serai là ce jour ✓</button>",
+      "css": ".ds-btn-presence { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px; background: #ffffff; border: 1px solid rgba(90,55,20,.11); border-radius: 12px; color: rgba(26,16,8,.60); font-family: 'Figtree', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 4px rgba(90,55,20,.07); transition: background 200ms, color 200ms, border-color 200ms, box-shadow 200ms; } .ds-btn-presence:hover { background: #f0ece4; color: #1a1008; border-color: rgba(90,55,20,.22); } .ds-btn-presence.on { background: rgba(0,137,111,.08); border-color: rgba(0,137,111,.24); color: #00896f; box-shadow: 0 2px 10px rgba(0,137,111,.12); }"
+    },
+    {
+      "name": "Chip (person)",
+      "kind": "chip",
+      "refersTo": "chip-default",
+      "description": "Presence name chip. 'Me' variant uses coral gradient.",
+      "html": "<span class=\"ds-chip\">Sophie</span> <span class=\"ds-chip ds-chip-me\">Ludo</span>",
+      "css": ".ds-chip { display: inline-block; background: #f0ece4; color: rgba(26,16,8,.60); border: 1px solid rgba(90,55,20,.11); border-radius: 999px; padding: 4px 11px; font-family: 'Figtree', sans-serif; font-size: 13px; font-weight: 600; } .ds-chip-me { background: linear-gradient(135deg, #e04010, #f5622c); color: #fff; border-color: transparent; }"
+    },
+    {
+      "name": "Item Card",
+      "kind": "card",
+      "refersTo": "button-ghost",
+      "description": "Shopping list item with progress bar. done state uses emerald tint.",
+      "html": "<div class=\"ds-item\"><div class=\"ds-item-top\"><span class=\"ds-item-name\">Eau minérale</span><span class=\"ds-item-count\">4 / 6 packs</span></div><div class=\"ds-bar\"><div class=\"ds-bar-fill\" style=\"width:67%\"></div></div></div>",
+      "css": ".ds-item { background: #ffffff; border: 1px solid rgba(90,55,20,.11); border-radius: 12px; padding: 12px; box-shadow: 0 1px 4px rgba(90,55,20,.07); transition: border-color 200ms, box-shadow 200ms; } .ds-item:hover { border-color: rgba(90,55,20,.22); box-shadow: 0 2px 8px rgba(90,55,20,.08), 0 8px 24px rgba(90,55,20,.05); } .ds-item.done { background: rgba(0,137,111,.08); border-color: rgba(0,137,111,.24); } .ds-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; } .ds-item-name { flex: 1; font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 15px; color: #1a1008; } .ds-item-count { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: rgba(26,16,8,.36); } .ds-item.done .ds-item-count { color: #00896f; } .ds-bar { height: 5px; background: rgba(90,55,20,.10); border-radius: 999px; overflow: hidden; } .ds-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #e04010, #00896f); transition: width 350ms cubic-bezier(.4,0,.2,1); box-shadow: 0 0 5px rgba(0,137,111,.28); }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "button-ghost",
+      "description": "Frosted warm-cream sticky bar. Two rows: identity top, page tabs bottom.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-top\"><span class=\"ds-nav-title\">TOUR DES YOLES ⛵</span><span class=\"ds-nav-person\">Ludo · <button class=\"ds-link\">changer</button></span></div><div class=\"ds-nav-links\"><a class=\"ds-nav-link ds-active\" href=\"#\">Accueil</a><a class=\"ds-nav-link\" href=\"#\">Jours</a><a class=\"ds-nav-link\" href=\"#\">Courses</a><a class=\"ds-nav-link\" href=\"#\">Récap</a></div></nav>",
+      "css": ".ds-nav { position: sticky; top: 0; z-index: 200; background: rgba(248,245,240,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(90,55,20,.11); box-shadow: 0 1px 0 rgba(90,55,20,.04); } .ds-nav-top { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px 8px; } .ds-nav-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .04em; color: #1a1008; } .ds-nav-person { font-family: 'Figtree', sans-serif; font-size: 13px; color: rgba(26,16,8,.60); } .ds-link { background: none; border: none; padding: 0; color: #e04010; text-decoration: underline; font-family: 'Figtree', sans-serif; font-size: 13px; cursor: pointer; } .ds-nav-links { display: flex; border-top: 1px solid rgba(90,55,20,.11); } .ds-nav-link { flex: 1; text-align: center; padding: 9px 4px 8px; color: rgba(26,16,8,.36); text-decoration: none; font-family: 'Figtree', sans-serif; font-size: 13px; font-weight: 600; border-bottom: 2px solid transparent; transition: color 200ms, border-color 200ms; } .ds-nav-link:hover { color: rgba(26,16,8,.60); } .ds-active { color: #e04010; border-bottom-color: #e04010; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "L'Anse Dorée",
+    "overview": "The system reads like a secluded golden-hour cove in Martinique — warm ivory sand, sun-bleached surfaces, coral fire and emerald water cutting through with full saturation. Every surface is light because light is the point: guests use this on their phones under direct Caribbean sun, and dark interfaces fail in that context.\n\nCoral (#e04010) is the sun, used for every primary action, active state, and urgency signal. Emerald (#00896f) is the sea, used for confirmations, presence, and 'covered' states. The two converge on the progress bar horizon line. Motion is present but purposeful: staggered fadeUp entrances on lists create rhythm without choreography.",
+    "keyCharacteristics": [
+      "Light-first: warm ivory canvas, white panels, warm-tinted shadows",
+      "Two saturated accents (coral + emerald) with a strict role split: coral = action/urgency, emerald = success/presence",
+      "Syne for all structural text paired with Figtree for all content",
+      "Tactile affordances: 36px minimum touch target, generous hit areas",
+      "Progress bar as the signature element: coral→emerald gradient, the horizon line between sun and sea"
+    ],
+    "rules": [
+      { "name": "The Horizon Rule", "body": "The coral→emerald gradient appears in exactly two places: the progress bar fill and the 2px heading accent underline. Applying it anywhere else dilutes the metaphor.", "section": "colors" },
+      { "name": "The Ink Tint Rule", "body": "Every neutral is tinted toward warm brown (hue ~25–30). Pure #000, #fff, or #808080 are prohibited.", "section": "colors" },
+      { "name": "The Syne Numeric Rule", "body": "All quantities, counts, and progress labels use Syne even when surrounded by Figtree copy. Numbers are structural.", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "Cards and rows rest with Shadow SM and lift to Shadow MD on hover. Only panels use Shadow MD at rest.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Coral Fire (#e04010) exclusively for primary actions, active states, and urgency.",
+      "Do use Emerald Sea (#00896f) for all confirmations: presence on, item covered, done badges.",
+      "Do keep the coral→emerald gradient in exactly two places: progress bar fill and heading accent underlines.",
+      "Do use Syne for all quantity and count displays, even when surrounded by Figtree copy.",
+      "Do tint every neutral toward warm brown. Background, border, shadow, and ink all carry the same hue family.",
+      "Do give every interactive element a minimum 36px touch target."
+    ],
+    "donts": [
+      "Don't reproduce the aesthetic of corporate dashboards (Linear, Notion, Jira). No cold greys, no flat-neutral surfaces.",
+      "Don't use generic SaaS UI patterns: hero-metric tiles, identical card grids, or modal-first interaction.",
+      "Don't use glassmorphism except on the nav. The frosted nav is purposeful; glass panels become decorative and expensive on mobile GPUs.",
+      "Don't use pure #000 or pure #fff for any text, background, or border.",
+      "Don't apply the coral→emerald gradient to text or decorative elements.",
+      "Don't use the danger color for missing item states. Coral handles urgency; danger is for destructive actions only.",
+      "Don't add bounce or elastic easing. All transitions use ease-out-quart curves."
+    ]
+  }
+}
