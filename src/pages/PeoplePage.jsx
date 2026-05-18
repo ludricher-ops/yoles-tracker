@@ -10,10 +10,11 @@ function PersonRow({ person, onUpdate, onDelete }) {
   const save = () => {
     const n = name.trim();
     if (!n) return;
-    if (n !== person.name) onUpdate(person.id, n);
+    if (n !== person.name) onUpdate(person.id, { name: n, is_couple: person.is_couple });
     setEditing(false);
   };
   const cancel = () => { setName(person.name); setEditing(false); };
+  const toggleCouple = () => onUpdate(person.id, { name: person.name, is_couple: !person.is_couple });
 
   if (editing) {
     return (
@@ -34,7 +35,17 @@ function PersonRow({ person, onUpdate, onDelete }) {
 
   return (
     <div className="person-row">
-      <span className="person-name">{person.name}</span>
+      <span className="person-name">
+        {person.name}
+        {person.is_couple && <span className="couple-badge">×2</span>}
+      </span>
+      <button
+        className={person.is_couple ? 'btn-couple sm on' : 'btn-couple sm'}
+        onClick={toggleCouple}
+        title={person.is_couple ? 'Seul·e' : 'En couple'}
+      >
+        {person.is_couple ? '♥ Couple' : '♥ Couple'}
+      </button>
       <button className="btn-ghost sm" onClick={() => setEditing(true)} title="Renommer">✎</button>
       <button
         className="btn-danger sm"
@@ -53,6 +64,8 @@ export default function PeoplePage() {
   const [newName, setNewName] = useState('');
   const [busy, setBusy] = useState(false);
 
+  const totalPersons = people.reduce((s, p) => s + (p.is_couple ? 2 : 1), 0);
+
   const handleAdd = async (e) => {
     e.preventDefault();
     const n = newName.trim();
@@ -69,7 +82,10 @@ export default function PeoplePage() {
   return (
     <section className="panel">
       <h2 className="page-title">Équipe</h2>
-      <p className="page-sub">{people.length} membre{people.length !== 1 ? 's' : ''}</p>
+      <p className="page-sub">
+        {people.length} fiche{people.length !== 1 ? 's' : ''}
+        {totalPersons !== people.length && ` · ${totalPersons} personnes au total`}
+      </p>
 
       <div className="person-list">
         {people.map(p => (

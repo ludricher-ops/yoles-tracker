@@ -200,6 +200,15 @@ body::before {
   color: #fff;
   border-color: transparent;
 }
+.couple-badge {
+  display: inline-block;
+  margin-left: 5px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 800;
+  color: var(--teal);
+  vertical-align: middle;
+  letter-spacing: -.01em;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    NAME PICKER
@@ -487,11 +496,28 @@ body::before {
    RECAP PAGE
    ═══════════════════════════════════════════════════════════════════════════════ */
 .recap-day-head {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
 }
+.recap-day-head:hover .recap-day-head-left h2 { color: var(--coral); }
+.recap-day-head-left { display: flex; flex-direction: column; gap: 2px; }
+.recap-day-head-right {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.recap-headcount {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .03em;
+  color: var(--ink-muted);
+}
+.recap-collapse-icon {
+  font-size: 14px; color: var(--ink-muted);
+  transition: color .15s;
+}
+.recap-day-head:hover .recap-collapse-icon { color: var(--coral); }
 .recap-day-head h2 {
   font-family: 'Syne', sans-serif;
   font-size: 18px; font-weight: 800; letter-spacing: -.01em; color: var(--ink);
@@ -570,6 +596,21 @@ body::before {
   border-color: var(--border-hi);
 }
 .person-name { flex: 1; font-weight: 600; font-size: 15px; }
+
+.btn-couple {
+  background: var(--surface-2); color: var(--ink-muted);
+  border: 1px solid var(--border);
+  border-radius: 9px; padding: 6px 10px;
+  font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.btn-couple:hover { background: var(--surface); border-color: var(--border-hi); }
+.btn-couple.on {
+  background: var(--done-bg);
+  border-color: var(--done-line);
+  color: var(--teal);
+}
 
 .person-row input {
   flex: 1; padding: 7px 10px;

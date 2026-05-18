@@ -37,14 +37,14 @@ export function useEvent() {
     return person;
   }, []);
 
-  const updatePerson = useCallback(async (id, name) => {
+  const updatePerson = useCallback(async (id, fields) => {
     setState(prev => ({
       ...prev,
-      people: prev.people.map(p => p.id === id ? { ...p, name } : p)
+      people: prev.people.map(p => p.id === id ? { ...p, ...fields } : p)
         .sort((a, b) => a.name.localeCompare(b.name)),
     }));
     try {
-      await api(`/api/people/${id}`, 'PUT', { name });
+      await api(`/api/people/${id}`, 'PUT', fields);
     } catch (err) { console.error('Erreur updatePerson :', err); }
   }, []);
 

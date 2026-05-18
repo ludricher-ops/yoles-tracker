@@ -63,6 +63,7 @@ export default function HomePage({ currentPerson }) {
             : presentPeople.map(p => (
                 <span key={p.id} className={p.id === currentPerson.id ? 'chip me' : 'chip'}>
                   {p.name}
+                  {p.is_couple && <span className="couple-badge">×2</span>}
                 </span>
               ))}
         </div>
