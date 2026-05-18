@@ -27,10 +27,13 @@ export function useEvent() {
       .catch(err => { setError(err.message); setLoading(false); });
   }, []);
 
-  // --- Personnes (création : on attend l'id du serveur) ---
+  // --- Personnes ---
   const addPerson = useCallback(async (name) => {
     const person = await api('/api/people', 'POST', { name });
-    setState(prev => ({ ...prev, people: [...prev.people, person].sort((a, b) => a.name.localeCompare(b.name)) }));
+    setState(prev => ({
+      ...prev,
+      people: [...prev.people, person].sort((a, b) => a.name.localeCompare(b.name)),
+    }));
     return person;
   }, []);
 
@@ -52,14 +55,15 @@ export function useEvent() {
   }, []);
 
   const deleteDay = useCallback(async (id) => {
-    const itemIds = new Set(stateRef.current.items.filter(i => i.day_id === id).map(i => i.id));
-    setState(prev => ({
-      ...prev,
-      days: prev.days.filter(d => d.id !== id),
-      presence: prev.presence.filter(p => p.day_id !== id),
-      items: prev.items.filter(i => i.day_id !== id),
-      claims: prev.claims.filter(c => !itemIds.has(c.item_id)),
-    }));
+    setState(prev => {
+      const itemIds = new Set(prev.items.map(i => i.id));
+      return {
+        ...prev,
+        days: prev.days.filter(d => d.id !== id),
+        presence: prev.presence.filter(p => p.day_id !== id),
+        claims: prev.claims.filter(c => c.day_id !== id),
+      };
+    });
     try {
       await api(`/api/days/${id}`, 'DELETE');
     } catch (err) { console.error('Erreur deleteDay :', err); }
@@ -79,11 +83,21 @@ export function useEvent() {
     } catch (err) { console.error('Erreur setPresence :', err); }
   }, []);
 
-  // --- Éléments ---
-  const addItem = useCallback(async ({ day_id, name, target_qty, unit }) => {
-    const item = await api('/api/items', 'POST', { day_id, name, target_qty, unit });
+  // --- Éléments (catalogue global) ---
+  const addItem = useCallback(async ({ name, target_qty, unit }) => {
+    const item = await api('/api/items', 'POST', { name, target_qty, unit });
     setState(prev => ({ ...prev, items: [...prev.items, item] }));
     return item;
+  }, []);
+
+  const updateItem = useCallback(async (id, fields) => {
+    setState(prev => ({
+      ...prev,
+      items: prev.items.map(i => (i.id === id ? { ...i, ...fields } : i)),
+    }));
+    try {
+      await api(`/api/items/${id}`, 'PUT', fields);
+    } catch (err) { console.error('Erreur updateItem :', err); }
   }, []);
 
   const deleteItem = useCallback(async (id) => {
@@ -97,22 +111,27 @@ export function useEvent() {
     } catch (err) { console.error('Erreur deleteItem :', err); }
   }, []);
 
-  // --- Participations ---
-  const setClaim = useCallback(async (item_id, person_id, qty) => {
+  // --- Participations (par item + personne + jour) ---
+  const setClaim = useCallback(async (item_id, person_id, day_id, qty) => {
     setState(prev => {
-      const others = prev.claims.filter(c => !(c.item_id === item_id && c.person_id === person_id));
+      const others = prev.claims.filter(
+        c => !(c.item_id === item_id && c.person_id === person_id && c.day_id === day_id)
+      );
       return {
         ...prev,
-        claims: qty > 0 ? [...others, { item_id, person_id, qty }] : others,
+        claims: qty > 0 ? [...others, { item_id, person_id, day_id, qty }] : others,
       };
     });
     try {
-      await api('/api/claims', 'PUT', { item_id, person_id, qty });
+      await api('/api/claims', 'PUT', { item_id, person_id, day_id, qty });
     } catch (err) { console.error('Erreur setClaim :', err); }
   }, []);
 
   return {
     ...state, loading, error,
-    addPerson, addDay, updateDay, deleteDay, setPresence, addItem, deleteItem, setClaim,
+    addPerson, addDay, updateDay, deleteDay,
+    setPresence,
+    addItem, updateItem, deleteItem,
+    setClaim,
   };
 }

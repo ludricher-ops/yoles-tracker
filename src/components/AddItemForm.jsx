@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function AddItemForm({ dayId, onAdd }) {
+export default function AddItemForm({ onAdd }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [qty, setQty] = useState('1');
@@ -15,12 +15,7 @@ export default function AddItemForm({ dayId, onAdd }) {
     if (!n || busy) return;
     setBusy(true);
     try {
-      await onAdd({
-        day_id: dayId,
-        name: n,
-        target_qty: Math.max(1, parseInt(qty, 10) || 1),
-        unit: unit.trim(),
-      });
+      await onAdd({ name: n, target_qty: Math.max(1, parseInt(qty, 10) || 1), unit: unit.trim() });
       reset();
     } finally {
       setBusy(false);
@@ -39,7 +34,7 @@ export default function AddItemForm({ dayId, onAdd }) {
     <form className="add-item-form" onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Ex: Glaçons, Rhum, Accras…"
+        placeholder="Ex : Glaçons, Rhum, Accras…"
         value={name}
         onChange={e => setName(e.target.value)}
         maxLength={80}
@@ -48,20 +43,11 @@ export default function AddItemForm({ dayId, onAdd }) {
       <div className="add-item-row">
         <label>
           Quantité
-          <input
-            type="number" min="1"
-            value={qty}
-            onChange={e => setQty(e.target.value)}
-          />
+          <input type="number" min="1" value={qty} onChange={e => setQty(e.target.value)} />
         </label>
         <label>
           Unité (optionnel)
-          <input
-            type="text" placeholder="packs, kg…"
-            value={unit}
-            onChange={e => setUnit(e.target.value)}
-            maxLength={20}
-          />
+          <input type="text" placeholder="packs, kg…" value={unit} onChange={e => setUnit(e.target.value)} maxLength={20} />
         </label>
       </div>
       <div className="add-item-actions">

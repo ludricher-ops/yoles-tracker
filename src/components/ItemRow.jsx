@@ -1,4 +1,4 @@
-export default function ItemRow({ item, people, claims, currentPerson, onDelete, onSetClaim }) {
+export default function ItemRow({ item, people, claims, currentPerson, dayId, onSetClaim }) {
   const total = claims.reduce((sum, c) => sum + c.qty, 0);
   const myClaim = claims.find(c => c.person_id === currentPerson.id);
   const myQty = myClaim ? myClaim.qty : 0;
@@ -6,21 +6,16 @@ export default function ItemRow({ item, people, claims, currentPerson, onDelete,
   const done = total >= item.target_qty;
   const unit = item.unit ? ` ${item.unit}` : '';
 
-  const nameOf = (id) => (people.find(p => p.id === id)?.name) || '?';
-  const change = (delta) => onSetClaim(item.id, currentPerson.id, Math.max(0, myQty + delta));
-
-  const handleDelete = () => {
-    if (window.confirm(`Supprimer « ${item.name} » ?`)) onDelete(item.id);
-  };
+  const nameOf = (id) => people.find(p => p.id === id)?.name ?? '?';
+  const change = (delta) => onSetClaim(item.id, currentPerson.id, dayId, Math.max(0, myQty + delta));
 
   return (
     <div className={done ? 'item done' : 'item'}>
       <div className="item-top">
         <span className="item-name">{item.name}</span>
         <span className="item-count">
-          {total}/{item.target_qty}{unit} {done && '✓'}
+          {total}/{item.target_qty}{unit}{done && ' ✓'}
         </span>
-        <button className="btn-danger sm" onClick={handleDelete} title="Supprimer">✕</button>
       </div>
 
       <div className="bar"><div className="bar-fill" style={{ width: `${pct}%` }} /></div>
