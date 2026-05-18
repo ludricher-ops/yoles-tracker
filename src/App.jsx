@@ -46,17 +46,20 @@ export default function App() {
     );
   }
 
+  const isAdmin = !!currentPerson.is_admin;
+  const AdminOnly = ({ element }) => isAdmin ? element : <Navigate to="/" replace />;
+
   return (
     <EventContext.Provider value={ev}>
       <BrowserRouter>
-        <Nav currentPerson={currentPerson} onForget={forgetPerson} />
+        <Nav currentPerson={currentPerson} onForget={forgetPerson} isAdmin={isAdmin} />
         <div className="page-content">
           <Routes>
             <Route path="/" element={<HomePage currentPerson={currentPerson} />} />
-            <Route path="/jours" element={<DaysPage />} />
+            <Route path="/jours"   element={<AdminOnly element={<DaysPage />} />} />
             <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/recap" element={<RecapPage />} />
-            <Route path="/equipe" element={<PeoplePage />} />
+            <Route path="/recap"   element={<RecapPage />} />
+            <Route path="/equipe"  element={<AdminOnly element={<PeoplePage />} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

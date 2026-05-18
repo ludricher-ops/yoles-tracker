@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-export default function Nav({ currentPerson, onForget }) {
+export default function Nav({ currentPerson, onForget, isAdmin }) {
   return (
     <header className="nav">
       <div className="nav-top">
@@ -12,10 +12,10 @@ export default function Nav({ currentPerson, onForget }) {
       </div>
       <div className="nav-links">
         <NavLink to="/" end>Accueil</NavLink>
-        <NavLink to="/jours">Jours</NavLink>
+        {isAdmin && <NavLink to="/jours">Jours</NavLink>}
         <NavLink to="/courses">Courses</NavLink>
         <NavLink to="/recap">Récap</NavLink>
-        <NavLink to="/equipe">Équipe</NavLink>
+        {isAdmin && <NavLink to="/equipe">Équipe</NavLink>}
       </div>
     </header>
   );

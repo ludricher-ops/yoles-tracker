@@ -8,14 +8,23 @@ function PersonRow({ person, onUpdate, onDelete }) {
 
   useEffect(() => { setName(person.name); }, [person.name]);
 
+  // Always send the full fields to keep server in sync
+  const fields = (overrides) => ({
+    name: person.name,
+    passenger_count: pax,
+    is_admin: person.is_admin ?? false,
+    ...overrides,
+  });
+
   const save = () => {
     const n = name.trim();
     if (!n) return;
-    if (n !== person.name) onUpdate(person.id, { name: n, passenger_count: pax });
+    if (n !== person.name) onUpdate(person.id, fields({ name: n }));
     setEditing(false);
   };
   const cancel = () => { setName(person.name); setEditing(false); };
-  const setPax = (n) => onUpdate(person.id, { name: person.name, passenger_count: n });
+  const setPax = (n) => onUpdate(person.id, fields({ passenger_count: n }));
+  const toggleAdmin = () => onUpdate(person.id, fields({ is_admin: !person.is_admin }));
 
   if (editing) {
     return (
@@ -39,21 +48,20 @@ function PersonRow({ person, onUpdate, onDelete }) {
       <span className="person-name">
         {person.name}
         {pax > 1 && <span className="pax-badge">×{pax}</span>}
+        {person.is_admin && <span className="admin-badge">Admin</span>}
       </span>
       <div className="pax-stepper">
-        <button
-          className="pax-btn"
-          onClick={() => setPax(Math.max(1, pax - 1))}
-          disabled={pax <= 1}
-          aria-label="Moins"
-        >−</button>
+        <button className="pax-btn" onClick={() => setPax(Math.max(1, pax - 1))} disabled={pax <= 1} aria-label="Moins">−</button>
         <span className="pax-value">{pax}</span>
-        <button
-          className="pax-btn"
-          onClick={() => setPax(Math.min(20, pax + 1))}
-          aria-label="Plus"
-        >+</button>
+        <button className="pax-btn" onClick={() => setPax(Math.min(20, pax + 1))} aria-label="Plus">+</button>
       </div>
+      <button
+        className={person.is_admin ? 'btn-admin sm on' : 'btn-admin sm'}
+        onClick={toggleAdmin}
+        title={person.is_admin ? 'Retirer les droits admin' : 'Donner les droits admin'}
+      >
+        {person.is_admin ? '🔑 Admin' : '🔑'}
+      </button>
       <button className="btn-ghost sm" onClick={() => setEditing(true)} title="Renommer">✎</button>
       <button
         className="btn-danger sm"

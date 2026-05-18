@@ -597,6 +597,34 @@ body::before {
 }
 .person-name { flex: 1; font-weight: 600; font-size: 15px; }
 
+.admin-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba(200, 122, 0, .12);
+  color: var(--gold);
+  border: 1px solid rgba(200, 122, 0, .25);
+  border-radius: 4px; padding: 1px 5px;
+  vertical-align: middle;
+}
+
+.btn-admin {
+  background: var(--surface-2); color: var(--ink-muted);
+  border: 1px solid var(--border);
+  border-radius: 9px; padding: 6px 10px;
+  font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.btn-admin:hover { background: var(--surface); border-color: var(--border-hi); }
+.btn-admin.on {
+  background: rgba(200, 122, 0, .10);
+  border-color: rgba(200, 122, 0, .28);
+  color: var(--gold);
+}
+
 .pax-stepper {
   display: flex; align-items: center; gap: 4px;
 }
