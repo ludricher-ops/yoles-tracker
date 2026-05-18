@@ -4,17 +4,18 @@ import { useEventContext } from '../context/EventContext.js';
 function PersonRow({ person, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(person.name);
+  const pax = person.passenger_count ?? 1;
 
   useEffect(() => { setName(person.name); }, [person.name]);
 
   const save = () => {
     const n = name.trim();
     if (!n) return;
-    if (n !== person.name) onUpdate(person.id, { name: n, is_couple: person.is_couple });
+    if (n !== person.name) onUpdate(person.id, { name: n, passenger_count: pax });
     setEditing(false);
   };
   const cancel = () => { setName(person.name); setEditing(false); };
-  const toggleCouple = () => onUpdate(person.id, { name: person.name, is_couple: !person.is_couple });
+  const setPax = (n) => onUpdate(person.id, { name: person.name, passenger_count: n });
 
   if (editing) {
     return (
@@ -37,15 +38,22 @@ function PersonRow({ person, onUpdate, onDelete }) {
     <div className="person-row">
       <span className="person-name">
         {person.name}
-        {person.is_couple && <span className="couple-badge">×2</span>}
+        {pax > 1 && <span className="pax-badge">×{pax}</span>}
       </span>
-      <button
-        className={person.is_couple ? 'btn-couple sm on' : 'btn-couple sm'}
-        onClick={toggleCouple}
-        title={person.is_couple ? 'Seul·e' : 'En couple'}
-      >
-        {person.is_couple ? '♥ Couple' : '♥ Couple'}
-      </button>
+      <div className="pax-stepper">
+        <button
+          className="pax-btn"
+          onClick={() => setPax(Math.max(1, pax - 1))}
+          disabled={pax <= 1}
+          aria-label="Moins"
+        >−</button>
+        <span className="pax-value">{pax}</span>
+        <button
+          className="pax-btn"
+          onClick={() => setPax(Math.min(20, pax + 1))}
+          aria-label="Plus"
+        >+</button>
+      </div>
       <button className="btn-ghost sm" onClick={() => setEditing(true)} title="Renommer">✎</button>
       <button
         className="btn-danger sm"
@@ -64,7 +72,7 @@ export default function PeoplePage() {
   const [newName, setNewName] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const totalPersons = people.reduce((s, p) => s + (p.is_couple ? 2 : 1), 0);
+  const totalPax = people.reduce((s, p) => s + (p.passenger_count ?? 1), 0);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -84,7 +92,7 @@ export default function PeoplePage() {
       <h2 className="page-title">Équipe</h2>
       <p className="page-sub">
         {people.length} fiche{people.length !== 1 ? 's' : ''}
-        {totalPersons !== people.length && ` · ${totalPersons} personnes au total`}
+        {totalPax !== people.length && ` · ${totalPax} passagers au total`}
       </p>
 
       <div className="person-list">

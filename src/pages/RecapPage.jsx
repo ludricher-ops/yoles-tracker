@@ -20,7 +20,7 @@ export default function RecapPage() {
         const presentPeople = ev.people.filter(p =>
           ev.presence.some(pr => pr.day_id === day.id && pr.person_id === p.id)
         );
-        const headCount = presentPeople.reduce((s, p) => s + (p.is_couple ? 2 : 1), 0);
+        const headCount = presentPeople.reduce((s, p) => s + (p.passenger_count ?? 1), 0);
 
         const itemRows = ev.items.map(item => {
           const dayClaims = ev.claims.filter(c => c.item_id === item.id && c.day_id === day.id);
@@ -67,7 +67,7 @@ export default function RecapPage() {
                       {presentPeople.map(p => (
                         <span key={p.id} className="chip">
                           {p.name}
-                          {p.is_couple && <span className="couple-badge">×2</span>}
+                          {(p.passenger_count ?? 1) > 1 && <span className="pax-badge">×{p.passenger_count}</span>}
                         </span>
                       ))}
                     </div>

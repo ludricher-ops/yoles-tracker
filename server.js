@@ -65,8 +65,9 @@ await pool.query(`ALTER TABLE claims ADD  COLUMN IF NOT EXISTS day_id INT REFERE
 await pool.query(`ALTER TABLE claims DROP CONSTRAINT IF EXISTS claims_item_id_person_id_key`);
 await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS claims_unique_idx ON claims (item_id, person_id, day_id)`);
 
-// --- Migration for is_couple ---
-await pool.query(`ALTER TABLE people ADD COLUMN IF NOT EXISTS is_couple BOOLEAN DEFAULT FALSE`);
+// --- Migration for passenger_count (replaces is_couple) ---
+await pool.query(`ALTER TABLE people ADD COLUMN IF NOT EXISTS passenger_count INT DEFAULT 1`);
+await pool.query(`ALTER TABLE people DROP COLUMN IF EXISTS is_couple`);
 
 // --- Performance indexes ---
 await pool.query(`CREATE INDEX IF NOT EXISTS idx_presence_day    ON presence (day_id)`);
@@ -129,7 +130,7 @@ app.use(express.static(join(__dirname, 'dist')));
 app.get('/api/state', async (_req, res) => {
   try {
     const [people, days, presence, items, claims] = await Promise.all([
-      pool.query('SELECT id, name, is_couple FROM people ORDER BY name'),
+      pool.query('SELECT id, name, passenger_count FROM people ORDER BY name'),
       pool.query(`SELECT id, to_char(event_date, 'YYYY-MM-DD') AS event_date, label, sort_order
                     FROM days ORDER BY sort_order, event_date, id`),
       pool.query('SELECT day_id, person_id FROM presence'),
@@ -151,10 +152,10 @@ app.post('/api/people', async (req, res) => {
   try {
     const name = (req.body.name || '').trim().slice(0, 60);
     if (!name) return res.status(400).json({ error: 'name requis' });
-    const is_couple = !!req.body.is_couple;
+    const passenger_count = Math.min(20, Math.max(1, parseInt(req.body.passenger_count, 10) || 1));
     const { rows } = await pool.query(
-      'INSERT INTO people (name, is_couple) VALUES ($1, $2) RETURNING id, name, is_couple',
-      [name, is_couple]
+      'INSERT INTO people (name, passenger_count) VALUES ($1, $2) RETURNING id, name, passenger_count',
+      [name, passenger_count]
     );
     res.json(rows[0]);
   } catch (err) { serverError(res, err); }
@@ -166,10 +167,10 @@ app.put('/api/people/:id', async (req, res) => {
     const id = parseId(res, req.params.id); if (!id) return;
     const name = (req.body.name || '').trim().slice(0, 60);
     if (!name) return res.status(400).json({ error: 'name requis' });
-    const is_couple = !!req.body.is_couple;
+    const passenger_count = Math.min(20, Math.max(1, parseInt(req.body.passenger_count, 10) || 1));
     const { rows } = await pool.query(
-      'UPDATE people SET name = $1, is_couple = $2 WHERE id = $3 RETURNING id, name, is_couple',
-      [name, is_couple, id]
+      'UPDATE people SET name = $1, passenger_count = $2 WHERE id = $3 RETURNING id, name, passenger_count',
+      [name, passenger_count, id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'personne introuvable' });
     res.json(rows[0]);
