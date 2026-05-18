@@ -1,0 +1,233 @@
+import express from 'express';
+import pg from 'pg';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const { Pool } = pg;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const isLocal = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes('localhost');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://localhost/yoles_tracker',
+  ssl: isLocal ? false : { rejectUnauthorized: false },
+});
+
+// Tables created on startup — one statement per query (pg limitation)
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS people (
+    id         SERIAL PRIMARY KEY,
+    name       TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
+  )
+`);
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS days (
+    id         SERIAL PRIMARY KEY,
+    event_date DATE,
+    label      TEXT NOT NULL,
+    sort_order INT DEFAULT 0
+  )
+`);
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS presence (
+    day_id    INT REFERENCES days(id)   ON DELETE CASCADE,
+    person_id INT REFERENCES people(id) ON DELETE CASCADE,
+    PRIMARY KEY (day_id, person_id)
+  )
+`);
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS items (
+    id         SERIAL PRIMARY KEY,
+    day_id     INT REFERENCES days(id) ON DELETE CASCADE,
+    name       TEXT NOT NULL,
+    target_qty INT NOT NULL DEFAULT 1,
+    unit       TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+  )
+`);
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS claims (
+    id        SERIAL PRIMARY KEY,
+    item_id   INT REFERENCES items(id)  ON DELETE CASCADE,
+    person_id INT REFERENCES people(id) ON DELETE CASCADE,
+    qty       INT NOT NULL DEFAULT 1,
+    UNIQUE (item_id, person_id)
+  )
+`);
+
+const app = express();
+app.use(express.json());
+app.use(express.static(join(__dirname, 'dist')));
+
+// GET /api/state  →  { people, days, presence, items, claims }
+app.get('/api/state', async (_req, res) => {
+  try {
+    const [people, days, presence, items, claims] = await Promise.all([
+      pool.query('SELECT id, name FROM people ORDER BY name'),
+      pool.query(`SELECT id, to_char(event_date, 'YYYY-MM-DD') AS event_date, label, sort_order
+                    FROM days ORDER BY sort_order, event_date, id`),
+      pool.query('SELECT day_id, person_id FROM presence'),
+      pool.query('SELECT id, day_id, name, target_qty, unit FROM items ORDER BY id'),
+      pool.query('SELECT id, item_id, person_id, qty FROM claims'),
+    ]);
+    res.json({
+      people: people.rows,
+      days: days.rows,
+      presence: presence.rows,
+      items: items.rows,
+      claims: claims.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/people  body: { name }
+app.post('/api/people', async (req, res) => {
+  try {
+    const name = (req.body.name || '').trim();
+    if (!name) return res.status(400).json({ error: 'name requis' });
+    const { rows } = await pool.query(
+      'INSERT INTO people (name) VALUES ($1) RETURNING id, name',
+      [name]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/days  body: { event_date, label, sort_order }
+app.post('/api/days', async (req, res) => {
+  try {
+    const label = (req.body.label || '').trim();
+    if (!label) return res.status(400).json({ error: 'label requis' });
+    const { event_date, sort_order } = req.body;
+    const { rows } = await pool.query(
+      `INSERT INTO days (event_date, label, sort_order) VALUES ($1, $2, $3)
+       RETURNING id, to_char(event_date, 'YYYY-MM-DD') AS event_date, label, sort_order`,
+      [event_date || null, label, sort_order || 0]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/days/:id  body: { event_date, label, sort_order }
+app.put('/api/days/:id', async (req, res) => {
+  try {
+    const label = (req.body.label || '').trim();
+    if (!label) return res.status(400).json({ error: 'label requis' });
+    const { event_date, sort_order } = req.body;
+    const { rows } = await pool.query(
+      `UPDATE days SET event_date = $1, label = $2, sort_order = $3 WHERE id = $4
+       RETURNING id, to_char(event_date, 'YYYY-MM-DD') AS event_date, label, sort_order`,
+      [event_date || null, label, sort_order || 0, req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'jour introuvable' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/days/:id
+app.delete('/api/days/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM days WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/presence  body: { day_id, person_id, present }
+app.put('/api/presence', async (req, res) => {
+  try {
+    const { day_id, person_id, present } = req.body;
+    if (!day_id || !person_id) return res.status(400).json({ error: 'day_id et person_id requis' });
+    if (present) {
+      await pool.query(
+        'INSERT INTO presence (day_id, person_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [day_id, person_id]
+      );
+    } else {
+      await pool.query('DELETE FROM presence WHERE day_id = $1 AND person_id = $2', [day_id, person_id]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/items  body: { day_id, name, target_qty, unit }
+app.post('/api/items', async (req, res) => {
+  try {
+    const name = (req.body.name || '').trim();
+    const { day_id } = req.body;
+    if (!day_id || !name) return res.status(400).json({ error: 'day_id et name requis' });
+    const target_qty = Math.max(1, parseInt(req.body.target_qty, 10) || 1);
+    const unit = (req.body.unit || '').trim() || null;
+    const { rows } = await pool.query(
+      `INSERT INTO items (day_id, name, target_qty, unit) VALUES ($1, $2, $3, $4)
+       RETURNING id, day_id, name, target_qty, unit`,
+      [day_id, name, target_qty, unit]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/items/:id
+app.delete('/api/items/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM items WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/claims  body: { item_id, person_id, qty }  (qty <= 0 supprime la claim)
+app.put('/api/claims', async (req, res) => {
+  try {
+    const { item_id, person_id } = req.body;
+    if (!item_id || !person_id) return res.status(400).json({ error: 'item_id et person_id requis' });
+    const qty = parseInt(req.body.qty, 10) || 0;
+    if (qty <= 0) {
+      await pool.query('DELETE FROM claims WHERE item_id = $1 AND person_id = $2', [item_id, person_id]);
+      res.json({ ok: true, removed: true });
+    } else {
+      const { rows } = await pool.query(
+        `INSERT INTO claims (item_id, person_id, qty) VALUES ($1, $2, $3)
+         ON CONFLICT (item_id, person_id) DO UPDATE SET qty = EXCLUDED.qty
+         RETURNING id, item_id, person_id, qty`,
+        [item_id, person_id, qty]
+      );
+      res.json(rows[0]);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// SPA fallback
+app.get('*', (_req, res) => {
+  res.sendFile(join(__dirname, 'dist', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Tour des Yoles running on port ${PORT}`));
