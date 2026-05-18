@@ -55,15 +55,12 @@ export function useEvent() {
   }, []);
 
   const deleteDay = useCallback(async (id) => {
-    setState(prev => {
-      const itemIds = new Set(prev.items.map(i => i.id));
-      return {
-        ...prev,
-        days: prev.days.filter(d => d.id !== id),
-        presence: prev.presence.filter(p => p.day_id !== id),
-        claims: prev.claims.filter(c => c.day_id !== id),
-      };
-    });
+    setState(prev => ({
+      ...prev,
+      days:     prev.days.filter(d => d.id !== id),
+      presence: prev.presence.filter(p => p.day_id !== id),
+      claims:   prev.claims.filter(c => c.day_id !== id),
+    }));
     try {
       await api(`/api/days/${id}`, 'DELETE');
     } catch (err) { console.error('Erreur deleteDay :', err); }

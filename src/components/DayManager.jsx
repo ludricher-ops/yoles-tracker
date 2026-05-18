@@ -1,9 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// Local-state row — syncs from props, fires onUpdate only on blur (not every keystroke)
+function DayRow({ day, onUpdate, onDelete }) {
+  const [label, setLabel] = useState(day.label);
+  const [date,  setDate]  = useState(day.event_date || '');
+
+  useEffect(() => { setLabel(day.label); },           [day.label]);
+  useEffect(() => { setDate(day.event_date || ''); }, [day.event_date]);
+
+  const save = () => {
+    const l = label.trim();
+    if (!l) return;
+    onUpdate(day.id, { label: l, event_date: date || null, sort_order: day.sort_order });
+  };
+
+  return (
+    <div className="day-edit-row">
+      <input
+        type="date"
+        value={date}
+        onChange={e => setDate(e.target.value)}
+        onBlur={save}
+      />
+      <input
+        type="text"
+        value={label}
+        onChange={e => setLabel(e.target.value)}
+        onBlur={save}
+        maxLength={100}
+      />
+      <button
+        className="btn-danger"
+        title="Supprimer"
+        onClick={() => {
+          if (window.confirm(`Supprimer « ${day.label} » et tout ce qui y est rattaché ?`))
+            onDelete(day.id);
+        }}
+      >✕</button>
+    </div>
+  );
+}
 
 export default function DayManager({ days, onAdd, onUpdate, onDelete }) {
   const [label, setLabel] = useState('');
-  const [date, setDate] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [date,  setDate]  = useState('');
+  const [busy,  setBusy]  = useState(false);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -19,44 +60,22 @@ export default function DayManager({ days, onAdd, onUpdate, onDelete }) {
     }
   };
 
-  const handleDelete = (day) => {
-    if (window.confirm(`Supprimer « ${day.label} » et tout ce qui y est rattaché ?`)) {
-      onDelete(day.id);
-    }
-  };
-
   return (
     <section className="panel day-manager">
       <h2>Gérer les jours</h2>
 
       {days.map(day => (
-        <div key={day.id} className="day-edit-row">
-          <input
-            type="date"
-            value={day.event_date || ''}
-            onChange={e => onUpdate(day.id, {
-              label: day.label, event_date: e.target.value || null, sort_order: day.sort_order,
-            })}
-          />
-          <input
-            type="text"
-            value={day.label}
-            onChange={e => onUpdate(day.id, {
-              label: e.target.value, event_date: day.event_date, sort_order: day.sort_order,
-            })}
-          />
-          <button className="btn-danger" onClick={() => handleDelete(day)} title="Supprimer">✕</button>
-        </div>
+        <DayRow key={day.id} day={day} onUpdate={onUpdate} onDelete={onDelete} />
       ))}
 
       <form className="day-edit-row add" onSubmit={handleAdd}>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} />
         <input
           type="text"
-          placeholder="Étape / journée (ex: Lundi — Le Robert)"
+          placeholder="Étape / journée (ex : Lundi — Le Robert)"
           value={label}
           onChange={e => setLabel(e.target.value)}
-          maxLength={80}
+          maxLength={100}
         />
         <button type="submit" className="btn-primary" disabled={busy || !label.trim()}>+</button>
       </form>
