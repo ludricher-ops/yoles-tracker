@@ -156,6 +156,30 @@ app.post('/api/people', async (req, res) => {
   } catch (err) { serverError(res, err); }
 });
 
+// PUT /api/people/:id
+app.put('/api/people/:id', async (req, res) => {
+  try {
+    const id = parseId(res, req.params.id); if (!id) return;
+    const name = (req.body.name || '').trim().slice(0, 60);
+    if (!name) return res.status(400).json({ error: 'name requis' });
+    const { rows } = await pool.query(
+      'UPDATE people SET name = $1 WHERE id = $2 RETURNING id, name',
+      [name, id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'personne introuvable' });
+    res.json(rows[0]);
+  } catch (err) { serverError(res, err); }
+});
+
+// DELETE /api/people/:id
+app.delete('/api/people/:id', async (req, res) => {
+  try {
+    const id = parseId(res, req.params.id); if (!id) return;
+    await pool.query('DELETE FROM people WHERE id = $1', [id]);
+    res.json({ ok: true });
+  } catch (err) { serverError(res, err); }
+});
+
 // POST /api/days
 app.post('/api/days', async (req, res) => {
   try {

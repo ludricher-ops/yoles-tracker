@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage.jsx';
 import DaysPage from './pages/DaysPage.jsx';
 import CoursesPage from './pages/CoursesPage.jsx';
 import RecapPage from './pages/RecapPage.jsx';
+import PeoplePage from './pages/PeoplePage.jsx';
 
 const STORAGE_KEY = 'yoles_person_id';
 
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/jours" element={<DaysPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/recap" element={<RecapPage />} />
+            <Route path="/equipe" element={<PeoplePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

@@ -37,6 +37,29 @@ export function useEvent() {
     return person;
   }, []);
 
+  const updatePerson = useCallback(async (id, name) => {
+    setState(prev => ({
+      ...prev,
+      people: prev.people.map(p => p.id === id ? { ...p, name } : p)
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    }));
+    try {
+      await api(`/api/people/${id}`, 'PUT', { name });
+    } catch (err) { console.error('Erreur updatePerson :', err); }
+  }, []);
+
+  const deletePerson = useCallback(async (id) => {
+    setState(prev => ({
+      ...prev,
+      people:   prev.people.filter(p => p.id !== id),
+      presence: prev.presence.filter(p => p.person_id !== id),
+      claims:   prev.claims.filter(c => c.person_id !== id),
+    }));
+    try {
+      await api(`/api/people/${id}`, 'DELETE');
+    } catch (err) { console.error('Erreur deletePerson :', err); }
+  }, []);
+
   // --- Jours ---
   const addDay = useCallback(async ({ event_date, label, sort_order }) => {
     const day = await api('/api/days', 'POST', { event_date, label, sort_order });
@@ -126,7 +149,8 @@ export function useEvent() {
 
   return {
     ...state, loading, error,
-    addPerson, addDay, updateDay, deleteDay,
+    addPerson, updatePerson, deletePerson,
+    addDay, updateDay, deleteDay,
     setPresence,
     addItem, updateItem, deleteItem,
     setClaim,

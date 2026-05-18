@@ -15,6 +15,7 @@ export default function Nav({ currentPerson, onForget }) {
         <NavLink to="/jours">Jours</NavLink>
         <NavLink to="/courses">Courses</NavLink>
         <NavLink to="/recap">Récap</NavLink>
+        <NavLink to="/equipe">Équipe</NavLink>
       </div>
     </header>
   );
